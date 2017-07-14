@@ -1,0 +1,9 @@
+#!/bin/bash
+
+gcc -o corderda.buildrooms corderda.buildrooms.c
+gcc -o corderda.adventure corderda.adventure.c
+
+./corderda.buildrooms
+./corderda.adventure
+
+
