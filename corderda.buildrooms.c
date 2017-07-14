@@ -35,8 +35,8 @@ void BuildRoom(char* path, int i)
 	fp = fopen(curpath,"w");
 
 	//write the base room data to the current room
-	char str[BUFSIZ];
-	sprintf(str, "%s", "ROOM NAME: ");
+	// char str[BUFSIZ];
+	// sprintf(str, "%s", "ROOM NAME: ");
 
 	//close file
 	fclose(fp);
