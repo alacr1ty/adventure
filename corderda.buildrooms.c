@@ -21,7 +21,9 @@ void BuildRoom(char* path, int i)
 
 	//initialize string buffers for the rooms path and i counter
 	char curpath[BUFSIZ];
+	memset(curpath, '\0', BUFSIZ);
 	char buf[BUFSIZ];
+	memset(buf, '\0', BUFSIZ);
 	//cast i into a string
 	sprintf(buf, "%d", i);
 	//build the current room path from str (curpath+"/room"+i)
@@ -54,6 +56,7 @@ void BuildRooms()
 	//In order to create the directory with the process id in the name, we will require
 	//	something like:
 	char buf[BUFSIZ];
+	memset(buf, '\0', BUFSIZ);
 	//Get process ID
     int p_id = getpid();  
     //Create string for file with <STUDENT ONID USERNAME>.rooms.<PROCESS ID>
