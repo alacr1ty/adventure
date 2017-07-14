@@ -11,7 +11,7 @@
 struct Room
 {
 	char* name;
-}
+};
 
 void BuildRoom(char* path, int i)
 {
