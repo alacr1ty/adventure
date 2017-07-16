@@ -12,12 +12,13 @@
 #include <time.h>
 
 #define TOTAL_ROOMS 7
+#define MAX_CONEX 6
 
 struct Room
 {
 	char *name;
 	int num_conex;
-	char *connections[TOTAL_ROOMS];
+	char *connections[MAX_CONEX];
 };
 
 // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
@@ -63,8 +64,8 @@ struct Room GetRandomRoom(struct Room* adventure[])
 // Returns true if a connection can be added from Room x, false otherwise
 bool CanAddConnectionFrom(struct Room x) 
 {	
-	// if there are 4 or less, so you can include the return connection
-	if (x.num_conex < 5)
+	// if there is space for two more connections, you can include the return connection
+	if (x.num_conex < (MAX_CONEX-1))
 	{
 		return true;		
 	}
@@ -75,8 +76,16 @@ bool CanAddConnectionFrom(struct Room x)
 // Connects Rooms x and y together, does not check if this connection is valid
 void ConnectRoom(struct Room x, struct Room y) 
 {
-	// make x.connections[next] == y.name and y.connections == x.name
+	// make x.connections[next] == y.name
+	//THIS REQUIRES STRCPY!
 	
+	//copying/pointer bug HERE!!!
+	//FIX ME!!!
+
+	x.connections[x.num_conex] = y.name;
+	printf("Testing connection %d: %s = %s\n", x.num_conex, x.connections[x.num_conex], y.name);
+	x.num_conex++;
+	printf("Num_Conex after increment: %d\n", x.num_conex);
 	return;
 }
 
@@ -127,6 +136,11 @@ void BuildRooms(struct Room* adventure[])
 		char CurRoomName[20];
 		char CurRoomNum[10];
 		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
+
+		for (int j = 0; j < MAX_CONEX; ++j)
+		{
+			adventure[i]->connections[j] = malloc(sizeof(char) * 20);
+		}
 
 		strcpy(CurRoomName,RoomName);
 		sprintf(CurRoomNum, "%d", i);
@@ -194,11 +208,17 @@ void WriteRooms()
 	return;
 }
 
+//Print Room Name, Number of Connections, Connection refs, and 
 void PrintRooms(struct Room* adventure[])
 {
 	for (int i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		printf("Room %d: %s: %p\n", i, adventure[i]->name, &adventure[i]->name);
+		printf("Room %s address: %p\n", adventure[i]->name, &adventure[i]->name);
+		printf("Number of Connections: %d\n", adventure[i]->num_conex);
+		for (int j = 0; j < adventure[i]->num_conex; ++j)
+		{
+			printf("\tConnection %d: %s\n", j, adventure[i]->connections[j]);
+		}
 	}
 }
 
