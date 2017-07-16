@@ -3,8 +3,10 @@
 ./cleanup
 
 now=$(date)
-echo "Automated commit executed on $now"
+msg="Automated commit executed on $now"
 
 git add .
-git commit -m "Automated commit executed on $now"
-git push
+git commit -m "$msg"
+git push --force
+
+echo $msg
