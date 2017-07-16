@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h>
 
 struct Room
 {
@@ -29,6 +30,13 @@ bool IsGraphFull(struct Room* adventure[])
 		return false;
 }
 
+// Gets a random Room from the array, does NOT validate if connection can be added
+struct Room GetRandomRoom( struct Room* adventure[])
+{
+	int r = rand();
+	return *adventure[r];
+}
+
 // Adds a random, valid outbound connection from a Room to another Room
 void AddRandomConnection(struct Room* adventure[])  
 {
@@ -37,7 +45,7 @@ void AddRandomConnection(struct Room* adventure[])
 
 	// while(true)
 	// {
-		// A = GetRandomRoom();
+		A = GetRandomRoom(adventure);
 
 		// if (CanAddConnectionFrom(A) == true)
 		// 	break;
@@ -54,25 +62,6 @@ void AddRandomConnection(struct Room* adventure[])
 
 	return;
 }
-
-// Returns a random Room, does NOT validate if connection can be added
-// Room GetRandomRoom(struct Room* adventure)
-// {
-// 	char RoomName[20] = "Test";
-// 	char CurRoomName[20];
-// 	char CurRoomNum[10];
-// 	adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
-
-// 	strcpy(CurRoomName,RoomName);
-// 	sprintf(CurRoomNum, "%d", i);
-// 	strcat(CurRoomName, CurRoomNum);
-	
-// 	adventure[i]->name = malloc(sizeof(char) * sizeof(CurRoomName));
-
-// 	// printf("%s\n", CurRoomName);
-// 	strcpy(adventure[i]->name, CurRoomName);
-// 	// printf("%s\n", adventure[i]->name);
-// }
 
 // Returns true if a connection can be added from Room x, false otherwise
 bool CanAddConnectionFrom(struct Room x) 
