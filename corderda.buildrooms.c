@@ -75,7 +75,9 @@ bool CanAddConnectionFrom(struct Room x)
 // Connects Rooms x and y together, does not check if this connection is valid
 void ConnectRoom(struct Room x, struct Room y) 
 {
-  return;
+	// make x.connections[next] == y.name and y.connections == x.name
+	
+	return;
 }
 
 // Returns true if Rooms x and y are the same Room, false otherwise
@@ -111,8 +113,8 @@ void AddRandomConnection(struct Room* adventure[])
 
 	printf("Adding connection between %s and %s...\n", A.name, B.name);
 
-//   ConnectRoom(A, B);
-//   ConnectRoom(B, A);
+  ConnectRoom(A, B);
+  ConnectRoom(B, A);
 
 	return;
 }
@@ -202,6 +204,8 @@ void PrintRooms(struct Room* adventure[])
 
 int main(int argc, char const *argv[])
 {
+	srand(time(NULL)); // randomize seed
+
 	//declare an array of TOTAL_ROOMS Room structs
 	struct Room* adventure[TOTAL_ROOMS];
 	BuildRooms(adventure);
