@@ -20,7 +20,7 @@ bool IsGraphFull(struct Room* adventure[])
 {
 	if (adventure[6]->name)
 	{
-		printf("Last Room has name: %s", adventure[6]->name);
+		printf("Last Room has name: %s\n", adventure[6]->name);
 		return true;
 	}
 	else
