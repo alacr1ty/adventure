@@ -18,12 +18,13 @@ struct Room
 // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
 bool IsGraphFull(struct Room* adventure[])  
 {
-	if (adventure[6]->name)
+	if (adventure[6]->name != 0)
 	{
 		printf("Last Room has name: %s\n", adventure[6]->name);
 		return true;
 	}
 	else
+		printf("Graph is not yet full\n");
 		return false;
 }
 
@@ -35,7 +36,7 @@ void AddRandomConnection(struct Room* adventure[])
 
 	// while(true)
 	// {
-		// A = GetRandomRoom(adventure);
+		// A = GetRandomRoom();
 
 		// if (CanAddConnectionFrom(A) == true)
 		// 	break;
@@ -157,12 +158,9 @@ int main(int argc, char const *argv[])
 	//declare an array of 7 Room structs
 	struct Room* adventure[7];
 
-	// memset(adventure, '\0', sizeof(adventure));
-	
 	//
 
-	//Room struct testing area
-	
+	//Room struct testing area	
 
 	for (int i = 0; i < (sizeof(adventure)/sizeof(adventure[0])); ++i)
 	{

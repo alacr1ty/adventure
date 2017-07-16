@@ -1,5 +1,6 @@
 #!/bin/bash
 
+./buildc
 ./cleanup
 
 now=$(date)
