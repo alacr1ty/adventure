@@ -18,9 +18,10 @@ struct Room
 // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
 bool IsGraphFull(struct Room* adventure[])  
 {
-	if (lengthof(adventure[6]->name) > 0)
+	if (strlen(adventure[6]->name) > 0)
 	{
 		printf("Last Room has name: %s\n", adventure[6]->name);
+		printf("Last Room name has length: %d\n", (int) strlen(adventure[6]->name));		
 		return true;
 	}
 	else
