@@ -1,0 +1,9 @@
+#!/bin/bash
+
+gcc -g -o corderda.buildrooms corderda.buildrooms.c
+gcc -g -o corderda.adventure corderda.adventure.c
+
+gdb ./corderda.buildrooms
+gdb ./corderda.adventure
+
+./cleanup

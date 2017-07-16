@@ -16,11 +16,11 @@ struct Room
 };
 
 // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
-bool IsGraphFull(struct Room* adventure)  
+bool IsGraphFull(struct Room* adventure[])  
 {
-	if (adventure[7].name)
+	if (adventure[6]->name)
 	{
-		printf("Last Room has name: %s", adventure[7].name);
+		printf("Last Room has name: %s", adventure[6]->name);
 		return true;
 	}
 	else
@@ -28,18 +28,18 @@ bool IsGraphFull(struct Room* adventure)
 }
 
 // Adds a random, valid outbound connection from a Room to another Room
-void AddRandomConnection(struct Room* adventure)  
+void AddRandomConnection(struct Room* adventure[])  
 {
-//   struct Room A;  //Maybe a struct, maybe global arrays of ints
-//   struct Room B;
+	struct Room A;
+	// struct Room B;
 
-//   while(true)
-//   {
-//     A = GetRandomRoom();
+	// while(true)
+	// {
+		// A = GetRandomRoom(adventure);
 
-//     if (CanAddConnectionFrom(A) == true)
-//       break;
-//   }
+		// if (CanAddConnectionFrom(A) == true)
+		// 	break;
+	// }
 
 //   do
 //   {
@@ -50,14 +50,26 @@ void AddRandomConnection(struct Room* adventure)
 //   ConnectRoom(A, B);
 //   ConnectRoom(B, A);
 
-
 	return;
 }
 
 // Returns a random Room, does NOT validate if connection can be added
-// Room GetRandomRoom()
+// Room GetRandomRoom(struct Room* adventure)
 // {
-//   return;
+// 	char RoomName[20] = "Test";
+// 	char CurRoomName[20];
+// 	char CurRoomNum[10];
+// 	adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
+
+// 	strcpy(CurRoomName,RoomName);
+// 	sprintf(CurRoomNum, "%d", i);
+// 	strcat(CurRoomName, CurRoomNum);
+	
+// 	adventure[i]->name = malloc(sizeof(char) * sizeof(CurRoomName));
+
+// 	// printf("%s\n", CurRoomName);
+// 	strcpy(adventure[i]->name, CurRoomName);
+// 	// printf("%s\n", adventure[i]->name);
 // }
 
 // Returns true if a connection can be added from Room x, false otherwise
@@ -174,9 +186,10 @@ int main(int argc, char const *argv[])
 
 	// Create all connections in graph
 	// while (IsGraphFull(adventure) == false)
-	// {
-	// 	AddRandomConnection(adventure);
-	// }
+	if (IsGraphFull(adventure) == false)
+	{
+		AddRandomConnection(adventure);
+	}
 
 	PrintRooms(adventure);
 	// WriteRooms();
