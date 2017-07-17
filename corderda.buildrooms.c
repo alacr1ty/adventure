@@ -7,7 +7,8 @@
 //	oregonstate.instructure.com/courses/1638966/pages/2-dot-2-program-outlining-in-program-2
 
 //TASKS PENDING:
-//	Write rooms to files
+//	Duplicate Room Name Bug
+//	Completes with <3 connections
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -165,6 +166,8 @@ void BuildRooms(struct Room* adventure[])
 	unsigned int pick;
 	unsigned int scan;
 
+	// BUG! : DUPLICATES IN options[]!
+
 	//for each room to be generated
 	for (count = 0; count < TOTAL_ROOMS; ++count)
 	{
@@ -183,6 +186,8 @@ void BuildRooms(struct Room* adventure[])
 		}
 		options[count] = pick;
 	}
+
+	//!GUB
 
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
