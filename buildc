@@ -1,5 +1,8 @@
 #!/bin/bash
 
+rm -f corderda.buildrooms
+rm -f corderda.adventure
+
 gcc -o corderda.buildrooms corderda.buildrooms.c
 gcc -o corderda.adventure corderda.adventure.c
 

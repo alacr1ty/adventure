@@ -7,7 +7,6 @@
 //	oregonstate.instructure.com/courses/1638966/pages/2-dot-2-program-outlining-in-program-2
 
 //TASKS PENDING:
-//	Add in random room types to each room (1 start, 1 end, the rest mid)
 //	Write rooms to files
 
 #include <stdio.h>
@@ -26,6 +25,7 @@ struct Room
 	char *name;
 	int num_conex;
 	char *connections[MAX_CONEX];
+	char *room_type;
 };
 
 // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
@@ -55,7 +55,7 @@ struct Room* GetRandomRoom(struct Room* adventure[])
 bool CanAddConnectionFrom(struct Room* x) 
 {	
 	// if there is space for another connection
-	if (x->num_conex < (MAX_CONEX))
+	if (x->num_conex < MAX_CONEX)
 		return true;		
 	else
 		return false;
@@ -75,6 +75,18 @@ void ConnectRoom(struct Room* x, struct Room* y)
 	return;
 }
 
+void AddRoomTypes(struct Room* adventure[]) 
+{
+	adventure[0]->room_type = "START_ROOM";
+	unsigned int i;
+	for (i = 1; i < TOTAL_ROOMS-1; ++i)
+	{
+		adventure[i]->room_type = "MID_ROOM";
+	}
+	adventure[TOTAL_ROOMS-1]->room_type = "END_ROOM";
+	return;
+}
+
 // Returns true if Rooms x and y are the same Room, false otherwise
 bool IsSameRoom(struct Room* x, struct Room* y) 
 {
@@ -90,14 +102,16 @@ bool IsNewConnection(struct Room* x, struct Room* y)
 	unsigned int i;
 	for (i = 0; i < x->num_conex; ++i)
 	{
-		printf("Comparing %s to %s and ", y->name, x->connections[i]);
-		printf("%s to %s...\n", x->name, y->connections[i]);
+		printf("Comparing %s to %s\n", y->name, x->connections[i]);
 		//if room y is already a connection in room x
 		if (!(strcmp(y->name,x->connections[i])))
 			return false;
+	}
+	for (i = 0; i < y->num_conex; ++i)
+	{
+		printf("Comparing %s to %s\n", x->name, y->connections[i]);
 		//or vice versa
-		else if (!(strcmp(x->name,y->connections[i])))
-			//return false
+		if (!(strcmp(x->name,y->connections[i])))
 			return false;
 	}
 	return true;
@@ -108,6 +122,7 @@ void AddRandomConnection(struct Room* adventure[])
 {
 	struct Room* A;
 	struct Room* B;
+	unsigned int count = 0;
 
 	while(true)
 	{
@@ -119,15 +134,18 @@ void AddRandomConnection(struct Room* adventure[])
 	do
 	{
 		B = GetRandomRoom(adventure);
+		count++;
 	}
 	while (CanAddConnectionFrom(B) == false ||
-		IsSameRoom(A, B) == true ||
-		IsNewConnection(A, B) == false);
+		IsSameRoom(A, B) == true);
 
 	printf("Adding connection between %s and %s...\n", A->name, B->name);
 
-	ConnectRoom(A, B);
-	ConnectRoom(B, A);
+	if (IsNewConnection(A,B))
+	{
+		ConnectRoom(A, B);
+		ConnectRoom(B, A);
+	}
 
 	return;
 }
@@ -185,7 +203,7 @@ void BuildRooms(struct Room* adventure[])
 	}
 }
 
-void WriteRooms()
+void WriteRooms(struct Room* adventure[])
 {
 	//The first thing your rooms program must do is generate TOTAL_ROOMS different room files,
 	//	one room per file, in a directory called "<STUDENT ONID USERNAME>.rooms.<PROCESS ID>".
@@ -231,6 +249,15 @@ void WriteRooms()
 		// char str[BUFSIZ];
 		// sprintf(str, "%s", "ROOM NAME: ");
 
+		fprintf(fp, "ROOM NAME: %s\n", adventure[i]->name);
+		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
+		unsigned int j;
+		for (j = 0; j < adventure[i]->num_conex; ++j)
+		{
+			fprintf(fp, "CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
+		}
+		fprintf(fp, "ROOM TYPE: %s\n", adventure[i]->room_type);
+
 		//close file
 		fclose(fp);
 		// char greet[] = "Hello World, from Room ";
@@ -253,7 +280,7 @@ void PrintRooms(struct Room* adventure[])
 		{
 			printf("CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
 		}
-		printf("ROOM TYPE: %s\n", '\0');
+		printf("ROOM TYPE: %s\n", adventure[i]->room_type);
 	}
 }
 
@@ -265,15 +292,19 @@ int main(int argc, char const *argv[])
 	struct Room* adventure[TOTAL_ROOMS];
 	BuildRooms(adventure);
 	
+	unsigned int count = 0;
 	// Create all connections in graph
 	// while (IsGraphFull(adventure) == false)
-	while (IsGraphFull(adventure) == false)
+	while (IsGraphFull(adventure) == false && count < 100)
 	{
 		AddRandomConnection(adventure);
+		count++;
 	}
 
+	AddRoomTypes(adventure);
+
 	PrintRooms(adventure);
-	// WriteRooms();
+	WriteRooms(adventure);
 	return 0;
 }
 
