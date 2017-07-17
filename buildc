@@ -9,4 +9,4 @@ gcc -o corderda.adventure corderda.adventure.c
 ./corderda.buildrooms
 ./corderda.adventure
 
-#./cleanup
+./cleanup

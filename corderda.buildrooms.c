@@ -246,9 +246,6 @@ void WriteRooms(struct Room* adventure[])
 		fp = fopen(curpath,"w");
 
 		//write the base room data to the current room
-		// char str[BUFSIZ];
-		// sprintf(str, "%s", "ROOM NAME: ");
-
 		fprintf(fp, "ROOM NAME: %s\n", adventure[i]->name);
 		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
 		unsigned int j;
@@ -260,8 +257,6 @@ void WriteRooms(struct Room* adventure[])
 
 		//close file
 		fclose(fp);
-		// char greet[] = "Hello World, from Room ";
-		// printf("%s%d: %s\n", greet, (i+1), curpath);
 	}
 
 	return;
