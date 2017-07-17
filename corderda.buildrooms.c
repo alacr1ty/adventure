@@ -219,7 +219,6 @@ void WriteRooms(struct Room* adventure[])
     sprintf(buf, "%d", p_id);
     strcat(newdir,buf);
 	int result = mkdir(newdir, 0755);
-	printf("Result of mkdir(): %d\n", result);
 
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
