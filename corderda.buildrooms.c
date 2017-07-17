@@ -25,17 +25,14 @@ struct Room
 bool IsGraphFull(struct Room* adventure[])  
 {
 	int full_rooms = 0;
-	for (int i = 0; i < TOTAL_ROOMS; ++i)
+	unsigned int i;
+	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
 		if (adventure[i]->num_conex > 3)
-		{
 			full_rooms++;
-		}
 	}
 	if (full_rooms == TOTAL_ROOMS)
-	{
 		return true;
-	}
 	else
 		return false;
 }
@@ -76,36 +73,43 @@ bool CanAddConnectionFrom(struct Room* x)
 // Connects Rooms x and y together, does not check if this connection is valid
 void ConnectRoom(struct Room* x, struct Room* y) 
 {
-	// make x.connections[next] == y.name
-	//THIS REQUIRES STRCPY!
-	
-	//copying/pointer bug HERE!!!
-	//FIX ME!!!
-
-	// char* name;
-	// name = malloc(sizeof(char) / sizeof(y.name));
-	// name = y.name;
 	x->connections[x->num_conex] = y->name;
-	
-	printf("Testing connection %d: %s = %s\n", x->num_conex, x->connections[x->num_conex], y->name);
+	// printf("Testing connection %d: %s = %s\n", x->num_conex, x->connections[x->num_conex], y->name);
 	
 	int num_conex = x->num_conex;
 	num_conex++;
 	x->num_conex = num_conex;
 	
-	printf("Num_Conex after increment: %d\n", x->num_conex);
+	// printf("Num_Conex after increment: %d\n", x->num_conex);
 	return;
 }
 
 // Returns true if Rooms x and y are the same Room, false otherwise
 bool IsSameRoom(struct Room* x, struct Room* y) 
 {
-	if (x->name == y->name)
-	{
+	//if name strings are the same...
+	if (!strcmp(x->name, y->name))
 		return true;
-	}
 	else
 		return false;
+}
+
+bool IsNewConnection(struct Room* x, struct Room* y) 
+{
+	unsigned int i;
+	for (i = 0; i < x->num_conex; ++i)
+	{
+		printf("Comparing %s to %s and ", y->name, x->connections[i]);
+		printf("%s to %s...\n", x->name, y->connections[i]);
+		//if room y is already a connection in room x
+		if (!(strcmp(y->name,x->connections[i])))
+			return false;
+		//or vice versa
+		else if (!(strcmp(x->name,y->connections[i])))
+			//return false
+			return false;
+	}
+	return true;
 }
 
 // Adds a random, valid outbound connection from a Room to another Room
@@ -126,26 +130,30 @@ void AddRandomConnection(struct Room* adventure[])
 	{
 		B = GetRandomRoom(adventure);
 	}
-	while(CanAddConnectionFrom(B) == false || IsSameRoom(A, B) == true);
+	while(CanAddConnectionFrom(B) == false ||
+		IsSameRoom(A, B) == true ||
+		IsNewConnection(A, B) == false);
 
 	printf("Adding connection between %s and %s...\n", A->name, B->name);
 
-  ConnectRoom(A, B);
-  ConnectRoom(B, A);
+	ConnectRoom(A, B);
+	ConnectRoom(B, A);
 
 	return;
 }
 
 void BuildRooms(struct Room* adventure[])
 {
-	for (int i = 0; i < TOTAL_ROOMS; ++i)
+	unsigned int i;
+	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
 		char RoomName[20] = "Test";
 		char CurRoomName[20];
 		char CurRoomNum[10];
 		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
 
-		for (int j = 0; j < MAX_CONEX; ++j)
+		unsigned int j;
+		for (j = 0; j < MAX_CONEX; ++j)
 		{
 			adventure[i]->connections[j] = malloc(sizeof(char) * 20);
 		}
@@ -180,7 +188,8 @@ void WriteRooms()
 	int result = mkdir(newdir, 0755);
 	printf("Result of mkdir(): %d\n", result);
 
-	for (int i = 0; i < TOTAL_ROOMS; ++i)
+	unsigned int i;
+	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
 		//You get to pick the names for those files, which should be hard-coded into your program.
 		//For example, the directory, if John Smith was writing the program, should be hard-coded
@@ -219,11 +228,13 @@ void WriteRooms()
 //Print Room Name, Number of Connections, Connection refs, and 
 void PrintRooms(struct Room* adventure[])
 {
-	for (int i = 0; i < TOTAL_ROOMS; ++i)
+	unsigned int i;
+	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		printf("Room %s address: %p\n", adventure[i]->name, &adventure[i]->name);
+		printf("\nRoom %s address: %p\n", adventure[i]->name, &adventure[i]->name);
 		printf("Number of Connections: %d\n", adventure[i]->num_conex);
-		for (int j = 0; j < adventure[i]->num_conex; ++j)
+		unsigned int j;
+		for (j = 0; j < adventure[i]->num_conex; ++j)
 		{
 			printf("\tConnection %d: %s\n", j, adventure[i]->connections[j]);
 		}
@@ -240,7 +251,7 @@ int main(int argc, char const *argv[])
 	
 	// Create all connections in graph
 	// while (IsGraphFull(adventure) == false)
-	if (IsGraphFull(adventure) == false)
+	while (IsGraphFull(adventure) == false)
 	{
 		AddRandomConnection(adventure);
 	}
@@ -249,3 +260,21 @@ int main(int argc, char const *argv[])
 	// WriteRooms();
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
