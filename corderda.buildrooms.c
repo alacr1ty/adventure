@@ -55,17 +55,17 @@ bool IsGraphFull(struct Room* adventure[])
 // }
 
 // Gets a random Room from the array, does NOT validate if connection can be added
-struct Room GetRandomRoom(struct Room* adventure[])
+struct Room* GetRandomRoom(struct Room* adventure[])
 {
 	int r = (rand()%TOTAL_ROOMS);
-	return *adventure[r];
+	return adventure[r];
 }
 
 // Returns true if a connection can be added from Room x, false otherwise
-bool CanAddConnectionFrom(struct Room x) 
+bool CanAddConnectionFrom(struct Room* x) 
 {	
 	// if there is space for two more connections, you can include the return connection
-	if (x.num_conex < (MAX_CONEX-1))
+	if (x->num_conex < (MAX_CONEX-1))
 	{
 		return true;		
 	}
@@ -74,7 +74,7 @@ bool CanAddConnectionFrom(struct Room x)
 }
 
 // Connects Rooms x and y together, does not check if this connection is valid
-void ConnectRoom(struct Room x, struct Room y) 
+void ConnectRoom(struct Room* x, struct Room* y) 
 {
 	// make x.connections[next] == y.name
 	//THIS REQUIRES STRCPY!
@@ -82,17 +82,25 @@ void ConnectRoom(struct Room x, struct Room y)
 	//copying/pointer bug HERE!!!
 	//FIX ME!!!
 
-	x.connections[x.num_conex] = y.name;
-	printf("Testing connection %d: %s = %s\n", x.num_conex, x.connections[x.num_conex], y.name);
-	x.num_conex++;
-	printf("Num_Conex after increment: %d\n", x.num_conex);
+	// char* name;
+	// name = malloc(sizeof(char) / sizeof(y.name));
+	// name = y.name;
+	x->connections[x->num_conex] = y->name;
+	
+	printf("Testing connection %d: %s = %s\n", x->num_conex, x->connections[x->num_conex], y->name);
+	
+	int num_conex = x->num_conex;
+	num_conex++;
+	x->num_conex = num_conex;
+	
+	printf("Num_Conex after increment: %d\n", x->num_conex);
 	return;
 }
 
 // Returns true if Rooms x and y are the same Room, false otherwise
-bool IsSameRoom(struct Room x, struct Room y) 
+bool IsSameRoom(struct Room* x, struct Room* y) 
 {
-	if (x.name == y.name)
+	if (x->name == y->name)
 	{
 		return true;
 	}
@@ -103,8 +111,8 @@ bool IsSameRoom(struct Room x, struct Room y)
 // Adds a random, valid outbound connection from a Room to another Room
 void AddRandomConnection(struct Room* adventure[])  
 {
-	struct Room A;
-	struct Room B;
+	struct Room* A;
+	struct Room* B;
 
 	while(true)
 	{
@@ -120,7 +128,7 @@ void AddRandomConnection(struct Room* adventure[])
 	}
 	while(CanAddConnectionFrom(B) == false || IsSameRoom(A, B) == true);
 
-	printf("Adding connection between %s and %s...\n", A.name, B.name);
+	printf("Adding connection between %s and %s...\n", A->name, B->name);
 
   ConnectRoom(A, B);
   ConnectRoom(B, A);
