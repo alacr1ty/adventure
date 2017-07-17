@@ -3,6 +3,13 @@
 //Creates a series of files that hold descriptions of the in-game rooms and 
 //	how the rooms are connected.
 
+//Some pseudocode snippets adapted from 
+//	oregonstate.instructure.com/courses/1638966/pages/2-dot-2-program-outlining-in-program-2
+
+//TASKS PENDING:
+//	Add in random room types to each room (1 start, 1 end, the rest mid)
+//	Write rooms to files
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -28,7 +35,7 @@ bool IsGraphFull(struct Room* adventure[])
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		if (adventure[i]->num_conex > 3)
+		if (adventure[i]->num_conex > 2)
 			full_rooms++;
 	}
 	if (full_rooms == TOTAL_ROOMS)
@@ -36,20 +43,6 @@ bool IsGraphFull(struct Room* adventure[])
 	else
 		return false;
 }
-
-// // Returns true if all rooms have 3 to 6 outbound connections, false otherwise
-// bool IsGraphFull(struct Room* adventure[])  
-// {
-// 	if (strlen(adventure[6]->name) > 0)
-// 	{
-// 		printf("Last Room has name: %s\n", adventure[6]->name);
-// 		printf("Last Room name has length: %d\n", (int) strlen(adventure[6]->name));		
-// 		return true;
-// 	}
-// 	else
-// 		printf("Graph is not yet full\n");
-// 		return false;
-// }
 
 // Gets a random Room from the array, does NOT validate if connection can be added
 struct Room* GetRandomRoom(struct Room* adventure[])
@@ -61,11 +54,9 @@ struct Room* GetRandomRoom(struct Room* adventure[])
 // Returns true if a connection can be added from Room x, false otherwise
 bool CanAddConnectionFrom(struct Room* x) 
 {	
-	// if there is space for two more connections, you can include the return connection
-	if (x->num_conex < (MAX_CONEX-1))
-	{
+	// if there is space for another connection
+	if (x->num_conex < (MAX_CONEX))
 		return true;		
-	}
 	else
 		return false;
 }
@@ -121,7 +112,6 @@ void AddRandomConnection(struct Room* adventure[])
 	while(true)
 	{
 		A = GetRandomRoom(adventure);
-
 		if (CanAddConnectionFrom(A) == true)
 			break;
 	}
@@ -130,7 +120,7 @@ void AddRandomConnection(struct Room* adventure[])
 	{
 		B = GetRandomRoom(adventure);
 	}
-	while(CanAddConnectionFrom(B) == false ||
+	while (CanAddConnectionFrom(B) == false ||
 		IsSameRoom(A, B) == true ||
 		IsNewConnection(A, B) == false);
 
@@ -144,12 +134,41 @@ void AddRandomConnection(struct Room* adventure[])
 
 void BuildRooms(struct Room* adventure[])
 {
+	//create array of possible rooms
+	//build TOTAL_ROOMS number of rooms from all possible
+	char possible[10][20] = {
+		"My House", "Crime Lab", "Music Factory", "Octopod Den", "It's a trap!",
+		"On the Run", "Mazy World", "Ghost Castle", "Haunted Hospital", "Denny's, Finally!"
+	};
+
+	//pick 7 random numbers 1-10
+	unsigned int options[TOTAL_ROOMS];
+	unsigned int count;
+	unsigned int pick;
+	unsigned int scan;
+
+	//for each room to be generated
+	for (count = 0; count < TOTAL_ROOMS; ++count)
+	{
+		//pick a random number 1-10
+		pick = (rand()%10);
+		//for each room that has *already been generated*
+		for (scan = 0; scan < (sizeof(options) / sizeof(int)); ++scan)
+		{
+			//if that room number is already scheduled to be generated
+			if (options[scan] == pick)
+			{
+				//change number and restart scan
+				pick = (rand()%10);
+				scan = 0;
+			}
+		}
+		options[count] = pick;
+	}
+
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		char RoomName[20] = "Test";
-		char CurRoomName[20];
-		char CurRoomNum[10];
 		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
 
 		unsigned int j;
@@ -157,16 +176,12 @@ void BuildRooms(struct Room* adventure[])
 		{
 			adventure[i]->connections[j] = malloc(sizeof(char) * 20);
 		}
-
-		strcpy(CurRoomName,RoomName);
-		sprintf(CurRoomNum, "%d", i);
-		strcat(CurRoomName, CurRoomNum);
-		
-		adventure[i]->name = malloc(sizeof(char) * sizeof(CurRoomName));
+	
+		adventure[i]->name = malloc(sizeof(char) * sizeof(possible[i]));
 		adventure[i]->num_conex = 0;
-		// printf("%s\n", CurRoomName);
-		strcpy(adventure[i]->name, CurRoomName);
-		// printf("%s\n", adventure[i]->name);
+
+		//assign randomized name to Room
+		strcpy(adventure[i]->name, possible[options[i]]);
 	}
 }
 
@@ -231,13 +246,14 @@ void PrintRooms(struct Room* adventure[])
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		printf("\nRoom %s address: %p\n", adventure[i]->name, &adventure[i]->name);
-		printf("Number of Connections: %d\n", adventure[i]->num_conex);
+		printf("\nROOM NAME: %s\n", adventure[i]->name);
+		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
 		unsigned int j;
 		for (j = 0; j < adventure[i]->num_conex; ++j)
 		{
-			printf("\tConnection %d: %s\n", j, adventure[i]->connections[j]);
+			printf("CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
 		}
+		printf("ROOM TYPE: %s\n", '\0');
 	}
 }
 
