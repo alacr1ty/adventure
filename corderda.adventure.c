@@ -59,6 +59,53 @@ time_t get_mtime(const char *path)
     return statbuf.st_mtime;
 }
 
+struct Room* castRoom(char *room, int num_conex)
+{
+	// printf("%s\n", room);
+	// cast room data string into an object
+	// create a new Room
+	struct Room* this_r_obj;
+
+	// allocate memory for the room
+	this_r_obj = (struct Room*) malloc(sizeof(struct Room*));
+	// allocate memory for name and number of connections
+	this_r_obj->name = malloc(sizeof(char) * sizeof(room));
+
+	// parse Room name
+	//
+	// assign Room name
+	// strcpy(this_r_obj->name, possible[options[i]]);
+	// assign number of connections to room
+	this_r_obj->num_conex = num_conex;
+
+	char **these_conex;
+	these_conex = (char **) {malloc(num_conex * sizeof(char*))};
+
+	unsigned int i;
+	for (i = 0; i < num_conex; ++i)
+	{
+		// parse each Room connection
+		// allocate memory for each connection
+		these_conex[i] = malloc(20 * sizeof(char));
+		char stuff[20] = "STUFFFFF";
+		strcpy(these_conex[i],stuff);
+		printf("%s\n", these_conex[i]);
+
+
+		// this_r_obj->connections[i] = malloc(20 * sizeof(char));
+		//assign connections
+		// strcpy(this_r_obj->connections[i],these_conex[i]);
+	}
+	// strncpy(this_r_obj->connections,these_conex,200);
+
+
+	// this_r_obj->connections = (char *[num_conex]) these_conex;
+	
+	// parse and assign the Room type
+
+	return this_r_obj;
+}
+
 struct Room** genRooms(struct Room* adventure[])
 {
 // Since the rooms program may have been run multiple times before executing
@@ -87,14 +134,13 @@ struct Room** genRooms(struct Room* adventure[])
 				}
 			}
 		}
-		printf("Latest: %s\n", latest_name);
+		// printf("Latest: %s\n", latest_name);
 
-		// struct dirent *dir;
 		f = opendir(latest_name);
 
 		if (f)
 		{
-			int c;
+			int r = 0;
 			FILE *fp;
 			char buff[255];
 			strcat(latest_name,"/");
@@ -107,51 +153,51 @@ struct Room** genRooms(struct Room* adventure[])
 					char this_f[30];
 					char cur_r_str[30];
 					char this_r_str[255];
+
 					strcpy(this_f,latest_name);
 					strcat(this_f,dir->d_name);
 					fp = fopen(this_f,"r");
+					// int num_conex = -2;
 					// printf("%s\n", this_f);
 
 					if (fp)
 					{
+						// clear room variables?
 						memset(buff, '\0', sizeof(buff));
 						memset(cur_r_str, '\0', sizeof(cur_r_str));
 						memset(this_r_str, '\0', sizeof(this_r_str));
+
+						int num_conex = -2;
 
 						while(fgets(buff, sizeof(buff), fp))
 						{
 							// put file contents into a string
 							strcpy(cur_r_str,buff);
 							strcat(this_r_str,cur_r_str);
+							num_conex++;
 						}
 
-						printf("%s\n", this_r_str);
+						// printf("%s\n", this_r_str);
+					
+						// add room to room array (adventure)
+						adventure[r] = castRoom(this_r_str,num_conex);
+						// move on to the next room in the adventure
+						r++;
 
-						// cast room data string into an object
-						// create a new Room
-						struct Room* this_r_obj;
-
-						// parse and assign the Room name
-						// adventure[i]->name = malloc(sizeof(char) * sizeof(possible[i]));
-						// parse, count, and assign each Room connection
-						// adventure[i]->num_conex = 0;
-
-						// assign the Room connection count
-						// parse and assign the Room type
 						fclose(fp);
 					}
 					else
 						printf("Can't read file!\n");
-
 				}
 			}
+			// return room array (adventure)
+			return adventure;
 		}
 		else
-			printf("Directory 'f' does not exist!");
-		return adventure;
+			printf("Directory 'f' does not exist!\n");
 	}
 	else
-		printf("Directory 'd' does not exist!");
+		printf("Directory 'd' does not exist!\n");
 
 	closedir(d);
 	closedir(f);
@@ -183,6 +229,20 @@ void displayPrompt()
 int main(int argc, char const *argv[])
 {
 	struct Room* adventure[TOTAL_ROOMS];
+
+	// unsigned int i;
+	// for (i = 0; i < TOTAL_ROOMS; ++i)
+	// {
+	// 	adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
+	// 	adventure[i]->connections = malloc(MAX_CONEX * sizeof(char*));
+
+	// 	unsigned int j;
+	// 	for (j = 0; j < MAX_CONEX; ++j)
+	// 	{
+	// 		adventure[i]->connections[j] = malloc(sizeof(char) * 20);
+	// 	}
+	// }
+
 	genRooms(adventure);
 	displayPrompt();
 

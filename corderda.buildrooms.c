@@ -181,7 +181,7 @@ void BuildRooms(struct Room* adventure[])
 				options[i] = pick;
 			}
 		}
-
+		// allocate memory for the room
 		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
 
 		unsigned int j;

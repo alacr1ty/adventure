@@ -1,0 +1,12 @@
+#!/bin/bash
+
+rm -f corderda.buildrooms
+rm -f corderda.adventure
+
+gcc -g -o corderda.buildrooms corderda.buildrooms.c
+gcc -g -o corderda.adventure corderda.adventure.c
+
+valgrind --leak-check=full ./corderda.buildrooms
+valgrind --leak-check=full ./corderda.adventure
+
+./cleanup
