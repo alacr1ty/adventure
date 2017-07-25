@@ -66,13 +66,9 @@ bool CanAddConnectionFrom(struct Room* x)
 void ConnectRoom(struct Room* x, struct Room* y) 
 {
 	x->connections[x->num_conex] = y->name;
-	// printf("Testing connection %d: %s = %s\n", x->num_conex, x->connections[x->num_conex], y->name);
 	
-	int num_conex = x->num_conex;
-	num_conex++;
-	x->num_conex = num_conex;
-	
-	// printf("Num_Conex after increment: %d\n", x->num_conex);
+	x->num_conex++;
+
 	return;
 }
 
@@ -103,14 +99,14 @@ bool IsNewConnection(struct Room* x, struct Room* y)
 	unsigned int i;
 	for (i = 0; i < x->num_conex; ++i)
 	{
-		printf("Comparing %s to %s\n", y->name, x->connections[i]);
+		// printf("Comparing %s to %s\n", y->name, x->connections[i]);
 		//if room y is already a connection in room x
 		if (!(strcmp(y->name,x->connections[i])))
 			return false;
 	}
 	for (i = 0; i < y->num_conex; ++i)
 	{
-		printf("Comparing %s to %s\n", x->name, y->connections[i]);
+		// printf("Comparing %s to %s\n", x->name, y->connections[i]);
 		//or vice versa
 		if (!(strcmp(x->name,y->connections[i])))
 			return false;
@@ -140,8 +136,7 @@ void AddRandomConnection(struct Room* adventure[])
 	while (CanAddConnectionFrom(B) == false ||
 		IsSameRoom(A, B) == true);
 
-	printf("Adding connection between %s and %s...\n", A->name, B->name);
-
+	// printf("Adding connection between %s and %s...\n", A->name, B->name);
 	if (IsNewConnection(A,B))
 	{
 		ConnectRoom(A, B);
@@ -161,15 +156,13 @@ void BuildRooms(struct Room* adventure[])
 	};
 
 	//pick 7 random numbers 1-10
-	unsigned int options[TOTAL_ROOMS];
-	unsigned int count;
+	int options[TOTAL_ROOMS] = {0};
+	unsigned int i;
 	unsigned int pick;
-	unsigned int scan;
-
-	// BUG! : DUPLICATES IN options[]!
+	int scan;
 
 	//for each room to be generated
-	for (count = 0; count < TOTAL_ROOMS; ++count)
+	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
 		//pick a random number 1-10
 		pick = (rand()%10);
@@ -181,17 +174,14 @@ void BuildRooms(struct Room* adventure[])
 			{
 				//change number and restart scan
 				pick = (rand()%10);
-				scan = 0;
+				scan = -1;
+			}
+			else if (options[scan] == 0)
+			{
+				options[i] = pick;
 			}
 		}
-		options[count] = pick;
-	}
 
-	//!GUB
-
-	unsigned int i;
-	for (i = 0; i < TOTAL_ROOMS; ++i)
-	{
 		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
 
 		unsigned int j;
@@ -199,13 +189,15 @@ void BuildRooms(struct Room* adventure[])
 		{
 			adventure[i]->connections[j] = malloc(sizeof(char) * 20);
 		}
-	
+		
+		// allocate memory for name and number of connections
 		adventure[i]->name = malloc(sizeof(char) * sizeof(possible[i]));
 		adventure[i]->num_conex = 0;
 
-		//assign randomized name to Room
+		// assign randomized name to Room
 		strcpy(adventure[i]->name, possible[options[i]]);
 	}
+
 }
 
 void WriteRooms(struct Room* adventure[])
@@ -272,14 +264,14 @@ void PrintRooms(struct Room* adventure[])
 	unsigned int i;
 	for (i = 0; i < TOTAL_ROOMS; ++i)
 	{
-		printf("\nROOM NAME: %s\n", adventure[i]->name);
+		// printf("\nROOM NAME: %s\n", adventure[i]->name);
 		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
 		unsigned int j;
 		for (j = 0; j < adventure[i]->num_conex; ++j)
 		{
-			printf("CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
+			// printf("CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
 		}
-		printf("ROOM TYPE: %s\n", adventure[i]->room_type);
+		// printf("ROOM TYPE: %s\n", adventure[i]->room_type);
 	}
 }
 
@@ -293,7 +285,6 @@ int main(int argc, char const *argv[])
 	
 	unsigned int count = 0;
 	// Create all connections in graph
-	// while (IsGraphFull(adventure) == false)
 	while (IsGraphFull(adventure) == false && count < 100)
 	{
 		AddRandomConnection(adventure);
@@ -304,23 +295,6 @@ int main(int argc, char const *argv[])
 
 	PrintRooms(adventure);
 	WriteRooms(adventure);
+
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
