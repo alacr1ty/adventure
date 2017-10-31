@@ -1,300 +1,338 @@
-//BossRoom BuildRooms.c
-//By Ava Cordero
-//Creates a series of files that hold descriptions of the in-game rooms and 
-//	how the rooms are connected.
 
-//Some pseudocode snippets adapted from 
-//	oregonstate.instructure.com/courses/1638966/pages/2-dot-2-program-outlining-in-program-2
+//buildrooms.c
+	//By Ava Cordero
 
-//TASKS PENDING:
-//	Duplicate Room Name Bug
-//	Completes with <3 connections
+//Generates a set of files that contain the structure of a room object for the adventure game executable.
+	//NAME: <NAME>
+	//CONNECTIONS: <CONNECTION>
+	//...
+	//ROOM TYPE: <ROOM TYPE>
+
+// Generate 7 different room files, one room per file, in a directory called
+	// <onid>.rooms.<pid>/
+// Each room has a name, 3-6 connections (random), a room type
+	// 10 room names will be hardcoded, 7 are randomly chosen at runtime
+	// All connections must be 2-way
+// There will always be at least one path through the adventure
+
+//Some code adapted from: 
+	//oregonstate.instructure.com/courses/1638966/pages/2-dot-2-program-outlining-in-program-2
+
+// Notes:
+	// When should start, mid, and end room types be assigned?
+		// during BuildAdv() or AddRoomToAdv() ?
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
+
 #include <sys/stat.h>
-#include <time.h>
 
-#define TOTAL_ROOMS 7
-#define MAX_CONEX 6
+// Set VERBOSE to 1 for trace statments
+#define VERBOSE 0
+// Set NUM_ROOMS to choose the number of room files in the adventure
+#define NUM_ROOMS 7
+#define MAX_ROOMS (NUM_ROOMS-1)
+#define ONID "corderda"
 
-struct Room
-{
-	char *name;
-	int num_conex;
-	char *connections[MAX_CONEX];
-	char *room_type;
+// Room Struct
+	// These are generated to output to a formatted room file
+struct Room {
+
+	int id;
+	char* name;
+	int numOutConnects;
+	// Rooms are fundamentally linked-lists, because of outConnects
+	struct Room* outConnects[MAX_ROOMS];
+
 };
 
-// Returns true if all rooms have 3 to 6 outbound connections, false otherwise
-bool IsGraphFull(struct Room* adventure[])  
-{
-	int full_rooms = 0;
-	unsigned int i;
-	for (i = 0; i < TOTAL_ROOMS; ++i)
-	{
-		if (adventure[i]->num_conex > 2)
-			full_rooms++;
+// Adv (Adventure) Struct
+	// This is an array of Rooms with NUM_ROOMS elements
+	// and an int of how many Rooms are in the array
+struct Adv {
+
+	int numAdvRooms;
+	struct Room advRooms[NUM_ROOMS];
+
+};
+
+// Function IsGraphFull()
+	// Outputs: bool (returns true if all rooms have 3 to 6 outbound connections, false otherwise)
+	// Inputs: An Adventure object
+bool IsGraphFull (struct Adv adv) {
+
+	struct Room* thisRoom;
+	int nodesVisited = 0;
+
+	for (int i = 0; i < NUM_ROOMS; ++i){
+
+		thisRoom = &adv.advRooms[i];
+
+		if (VERBOSE==1){
+			printf("IsGraphFull(): Room id: %d\n",
+				thisRoom->id); 
+			printf("IsGraphFull(): Room name: %s\n",
+				thisRoom->name); 
+			printf("IsGraphFull(): Number of connects for %s: %d\n",
+				thisRoom->name, thisRoom->numOutConnects);
+		}
+
+		if (thisRoom->numOutConnects > 2)
+			nodesVisited++;
 	}
-	if (full_rooms == TOTAL_ROOMS)
+
+	if (nodesVisited == NUM_ROOMS){
+		if (VERBOSE==1)
+			printf("IsGraphFull(): Returning True\n");
 		return true;
-	else
+	} else {
+		if (VERBOSE==1)
+			printf("IsGraphFull(): Returning False\n");
 		return false;
+	}
+
 }
 
-// Gets a random Room from the array, does NOT validate if connection can be added
-struct Room* GetRandomRoom(struct Room* adventure[])
-{
-	int r = (rand()%TOTAL_ROOMS);
-	return adventure[r];
+// Function AddRandomRoom()
+	// Outputs: Void
+	// Inputs: A random Room object, an array of possible room names, and the length of the array
+		// does NOT validate if connection can be added
+void AddRandomRoom (struct Adv* adv, char options[10][32], int optionsLen) {
+
+		//creates a new room with the selected name
+		// adds the new room to the adventure
+
+		struct Room* thisRoom;
+		int position;
+		int c;
+
+		// assign to the room pointer the address of the next room in the adventure
+		thisRoom = &adv->advRooms[adv->numAdvRooms];
+		// choose a random element to use from the options array
+		position = rand()%optionsLen;
+		// assign the most recent id and room name from the options array
+		thisRoom->id = adv->numAdvRooms;
+		thisRoom->name = malloc((sizeof(char) * sizeof(options[position])));
+		strcpy(thisRoom->name,options[position]);
+
+		if (VERBOSE==1){
+			printf("AddRandomRoom(): Options Length: %d\n", optionsLen);
+			printf("AddRandomRoom(): Room id:%d\n", adv->numAdvRooms);
+		}
+		
+		// removes the room from the options array
+		thisRoom->numOutConnects = 0;
+		for ( c = position ; c < optionsLen-1 ; c++ )
+        	strcpy(options[c],options[c+1]); 
+
+		// increments numAdvRooms by 1
+		adv->numAdvRooms++;
+
+		return;
+
 }
 
-// Returns true if a connection can be added from Room x, false otherwise
-bool CanAddConnectionFrom(struct Room* x) 
-{	
-	// if there is space for another connection
-	if (x->num_conex < MAX_CONEX)
-		return true;		
-	else
+// Function IsSameRoom()
+	// Outputs: Bool (returns true if Rooms x and y are the same Room, false otherwise)
+	// Inputs: Two Room objects
+bool IsSameRoom (struct Room* x, struct Room* y) {
+
+	if (x->id == y->id){
+		if (VERBOSE==1)
+			printf("IsSameRoom(): Returning True\n");
+		return true;
+	} else {
+		if (VERBOSE==1)
+			printf("IsSameRoom(): Returning False\n");
 		return false;
+	}
+
 }
 
-// Connects Rooms x and y together, does not check if this connection is valid
-void ConnectRoom(struct Room* x, struct Room* y) 
-{
-	x->connections[x->num_conex] = y->name;
-	
-	x->num_conex++;
+// Function CanAddConnectionFrom()
+	// Outputs: Bool (returns true if a connection can be added from Room x, false otherwise)
+	// Inputs: A Room object
+bool CanAddConnectionFrom(struct Room* x){
+
+	// if the Room.outboundConnections:
+		// are not full
+	if (x->numOutConnects < MAX_ROOMS){
+		if (VERBOSE==1)
+			printf("CanAddConnectionFrom(): Returning True\n");
+		return true;
+	// otherwise return false
+	} else{
+		if (VERBOSE==1)
+			printf("CanAddConnectionFrom(): Returning False\n");
+		return false;
+	}
+
+}
+
+bool IsAlreadyConnected(struct Room* x, struct Room* y){
+
+	for (int i = 0; i < x->numOutConnects; ++i)
+		if (x->outConnects[i]->name == y->name)
+			return true;
+	for (int i = 0; i < y->numOutConnects; ++i)
+		if (y->outConnects[i]->name == x->name)
+			return true;
+	return false;
+
+}
+
+// Function ConnectRoom()
+	// Outputs: Void (connects Rooms x and y together, does not check if this connection is valid)
+	// Inputs: Two Room objects
+void ConnectRoom (struct Room* x, struct Room* y) {
+
+	x->outConnects[x->numOutConnects] = y;
+	y->outConnects[y->numOutConnects] = x;
+
+	x->numOutConnects++;
+	y->numOutConnects++;
 
 	return;
+
 }
 
-void AddRoomTypes(struct Room* adventure[]) 
-{
-	adventure[0]->room_type = "START_ROOM";
-	unsigned int i;
-	for (i = 1; i < TOTAL_ROOMS-1; ++i)
-	{
-		adventure[i]->room_type = "MID_ROOM";
-	}
-	adventure[TOTAL_ROOMS-1]->room_type = "END_ROOM";
-	return;
-}
+// Function AddRandomConnection()
+	// Outputs: Void (adds a random, valid connection from between two Rooms)
+	// Inputs: An adventure object
+void AddRandomConnection (struct Adv* adv) {
 
-// Returns true if Rooms x and y are the same Room, false otherwise
-bool IsSameRoom(struct Room* x, struct Room* y) 
-{
-	//if name strings are the same...
-	if (!strcmp(x->name, y->name))
-		return true;
-	else
-		return false;
-}
-
-bool IsNewConnection(struct Room* x, struct Room* y) 
-{
-	unsigned int i;
-	for (i = 0; i < x->num_conex; ++i)
-	{
-		// printf("Comparing %s to %s\n", y->name, x->connections[i]);
-		//if room y is already a connection in room x
-		if (!(strcmp(y->name,x->connections[i])))
-			return false;
-	}
-	for (i = 0; i < y->num_conex; ++i)
-	{
-		// printf("Comparing %s to %s\n", x->name, y->connections[i]);
-		//or vice versa
-		if (!(strcmp(x->name,y->connections[i])))
-			return false;
-	}
-	return true;
-}
-
-// Adds a random, valid outbound connection from a Room to another Room
-void AddRandomConnection(struct Room* adventure[])  
-{
 	struct Room* A;
 	struct Room* B;
-	unsigned int count = 0;
 
-	while(true)
-	{
-		A = GetRandomRoom(adventure);
-		if (CanAddConnectionFrom(A) == true)
+	while(true){
+		A = &adv->advRooms[rand()%NUM_ROOMS];
+		if (CanAddConnectionFrom(A))
 			break;
 	}
 
-	do
-	{
-		B = GetRandomRoom(adventure);
-		count++;
-	}
-	while (CanAddConnectionFrom(B) == false ||
-		IsSameRoom(A, B) == true);
+	do{
+		B = &adv->advRooms[rand()%NUM_ROOMS];
+	}while(CanAddConnectionFrom(B) == false ||
+		IsSameRoom(A, B) == true || IsAlreadyConnected(A,B) == true);
 
-	// printf("Adding connection between %s and %s...\n", A->name, B->name);
-	if (IsNewConnection(A,B))
-	{
-		ConnectRoom(A, B);
-		ConnectRoom(B, A);
-	}
+	if (VERBOSE==1)
+		printf("AddRandomConnection(): Connecting Rooms %d and %d!\n", A->id, B->id);
+
+	ConnectRoom(A, B);
 
 	return;
+
 }
 
-void BuildRooms(struct Room* adventure[])
-{
-	//create array of possible rooms
-	//build TOTAL_ROOMS number of rooms from all possible
-	char possible[10][20] = {
-		"My House", "Crime Lab", "Music Factory", "Octopod Den", "It's a trap!",
-		"On the Run", "Mazy World", "Ghost Castle", "Haunted Hospital", "Denny's, Finally!"
-	};
+// Function IsAdventureFull()
+	// Outputs: Bool (returns true to show there are NUM_ROOMS in the Adventure)
+	// Inputs: An Adventure object
+bool IsAdventureFull (struct Adv adv) {
 
-	//pick 7 random numbers 1-10
-	int options[TOTAL_ROOMS] = {0};
-	unsigned int i;
-	unsigned int pick;
-	int scan;
-
-	//for each room to be generated
-	for (i = 0; i < TOTAL_ROOMS; ++i)
-	{
-		//pick a random number 1-10
-		pick = (rand()%10);
-		//for each room that has *already been generated*
-		for (scan = 0; scan < (sizeof(options) / sizeof(int)); ++scan)
-		{
-			//if that room number is already scheduled to be generated
-			if (options[scan] == pick)
-			{
-				//change number and restart scan
-				pick = (rand()%10);
-				scan = -1;
-			}
-			else if (options[scan] == 0)
-			{
-				options[i] = pick;
-			}
-		}
-		// allocate memory for the room
-		adventure[i] = (struct Room*) malloc(sizeof(struct Room*));
-
-		unsigned int j;
-		for (j = 0; j < MAX_CONEX; ++j)
-		{
-			adventure[i]->connections[j] = malloc(sizeof(char) * 20);
-		}
-		
-		// allocate memory for name and number of connections
-		adventure[i]->name = malloc(sizeof(char) * sizeof(possible[i]));
-		adventure[i]->num_conex = 0;
-
-		// assign randomized name to Room
-		strcpy(adventure[i]->name, possible[options[i]]);
+	if (adv.numAdvRooms == NUM_ROOMS){
+		return true;
+	} else {
+		return false;
 	}
+	
+}
+
+// Function BuildFolder()
+	// Outputs: Void (makes a directory with name of <onid>.rooms.<pid>/)
+	// Inputs: None
+void BuildFolder () {
+
+	// make a directory with the name "<onid>.rooms.<pid>/"
+	char folderName[32];
+	sprintf(folderName, "%s.rooms.%d", ONID, getpid());
+    mkdir(folderName, 0755);
+	return;
 
 }
 
-void WriteRooms(struct Room* adventure[])
-{
-	//The first thing your rooms program must do is generate TOTAL_ROOMS different room files,
-	//	one room per file, in a directory called "<STUDENT ONID USERNAME>.rooms.<PROCESS ID>".
+// Function BuildAdvFolder()
+	// Outputs: Void (prints object data to file(s))
+	// Input: An Adventure object
+void BuildAdvFolder (struct Adv adv) {
 
-	//In order to create the directory with the process id in the name, we will require
-	//	something like:
-	char buf[BUFSIZ];
-	memset(buf, '\0', BUFSIZ);
-	//Get process ID
-    int p_id = getpid();  
-    //Create string for file with <STUDENT ONID USERNAME>.rooms.<PROCESS ID>
-    char newdir[] = "./corderda.rooms.";
-    sprintf(buf, "%d", p_id);
-    strcat(newdir,buf);
-	int result = mkdir(newdir, 0755);
+	BuildFolder();
 
-	unsigned int i;
-	for (i = 0; i < TOTAL_ROOMS; ++i)
-	{
-		//You get to pick the names for those files, which should be hard-coded into your program.
-		//For example, the directory, if John Smith was writing the program, should be hard-coded
-		//	(except for the process id number) as: corderda.rooms.<pid>
+	char fileNameBase[32];
+	sprintf(fileNameBase, "%s.rooms.%d/", ONID, getpid());
+	char fileName[32];
+	FILE *fp;
 
-		//initialize string buffers for the rooms path and i counter
-		char curpath[BUFSIZ];
-		memset(curpath, '\0', BUFSIZ);
-		char buf[BUFSIZ];
-		memset(buf, '\0', BUFSIZ);
-		//cast i into a string
-		sprintf(buf, "%d", i);
-		//build the current room path from str (curpath+"/room"+i)
-		strcpy(curpath, newdir);
-		strcat(curpath,"/room");
-		strcat(curpath,buf);
-		// printf("New Room Path: %s\n", curpath);
+	for (int i = 0; i < NUM_ROOMS; ++i){
 
-		//create and open new room file for writing
-		FILE *fp;
-		fp = fopen(curpath,"w");
+		sprintf(fileName, "%s%d", fileNameBase, i);
 
-		//write the base room data to the current room
-		fprintf(fp, "ROOM NAME: %s\n", adventure[i]->name);
-		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
-		unsigned int j;
-		for (j = 0; j < adventure[i]->num_conex; ++j)
-		{
-			fprintf(fp, "CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
-		}
-		fprintf(fp, "ROOM TYPE: %s\n", adventure[i]->room_type);
+		if (VERBOSE==1)
+			printf("BuildRoomFolder(): File Name: %s\n", fileName);
 
-		//close file
+		fp = fopen(fileName, "w+");
+	
+		fprintf(fp, "ROOM NAME: %s\n", adv.advRooms[i].name);
+		for (int j = 0; j < adv.advRooms[i].numOutConnects; ++j)
+			fprintf(fp, "CONNECTION %d: %s\n", j, adv.advRooms[i].outConnects[j]->name);
+		if (i==0)
+			fprintf(fp, "ROOM TYPE: START_ROOM");
+		else if (i==(NUM_ROOMS-1))
+			fprintf(fp, "ROOM TYPE: END_ROOM");
+		else
+			fprintf(fp, "ROOM TYPE: MID_ROOM");
+
 		fclose(fp);
 	}
 
 	return;
+
 }
 
-//Print Room Name, Number of Connections, Connection refs, and 
-void PrintRooms(struct Room* adventure[])
-{
-	unsigned int i;
-	for (i = 0; i < TOTAL_ROOMS; ++i)
-	{
-		// printf("\nROOM NAME: %s\n", adventure[i]->name);
-		// printf("Number of Connections: %d\n", adventure[i]->num_conex);
-		unsigned int j;
-		for (j = 0; j < adventure[i]->num_conex; ++j)
-		{
-			// printf("CONNECTION %d: %s\n", (j+1), adventure[i]->connections[j]);
-		}
-		// printf("ROOM TYPE: %s\n", adventure[i]->room_type);
-	}
-}
+int main (int argc, char const *argv[]) {
 
-int main(int argc, char const *argv[])
-{
-	srand(time(NULL)); // randomize seed
+	// Generate a folder with name <onid>.rooms.<pid>/
+	// Generate An adventure object that has been fully graphed (i.e connected)
+	// Generate 7 different room files, one room per file, in a directory called
+	// Prints out all the formatted room objects to the room files
 
-	//declare an array of TOTAL_ROOMS Room structs
-	struct Room* adventure[TOTAL_ROOMS];
-	BuildRooms(adventure);
-	
-	unsigned int count = 0;
-	// Create all connections in graph
-	while (IsGraphFull(adventure) == false && count < 100)
-	{
-		AddRandomConnection(adventure);
-		count++;
+	// seed randomization pool
+	srand(time(NULL)); 
+
+	// build the room array ("adventure") object
+		// an array of 7/10 names, with zero connections
+		// declare variables for the program
+	struct Adv adv;
+	adv.numAdvRooms = 0;
+	char options[10][32] = {
+		"Home", "Dragon Lair", "Poppy Field",
+		"Ghost Town", "Brooklyn", "Dark Dungeon",
+		"Monster's Hut", "House of Mirrors", "Very Lost",
+		"Happy Place"
+	};
+	int optionsLen = sizeof(options) / sizeof(options[0]);
+
+	// Add all rooms to the adventure
+	while (IsAdventureFull(adv) == false){
+		AddRandomRoom(&adv, options, optionsLen);
+		// decrement optionsLen each time
+		optionsLen--;
 	}
 
-	AddRoomTypes(adventure);
+	// Fill the adventure graphs with 3-6 connections per node
+	while (IsGraphFull(adv) == false)
+		AddRandomConnection(&adv);
 
-	PrintRooms(adventure);
-	WriteRooms(adventure);
+	// "Cast" the Adventure struct into a folder of complete room files.
+	BuildAdvFolder(adv);
 
 	return 0;
+
 }
+
+
+
+

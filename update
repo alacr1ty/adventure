@@ -1,7 +1,6 @@
 #!/bin/bash
 
-./buildc
-./cleanup
+make clean
 
 now=$(date)
 msg="Automated commit executed on $now"

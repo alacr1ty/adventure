@@ -1,12 +1,7 @@
 #!/bin/bash
 
-rm -f corderda.buildrooms
-rm -f corderda.adventure
+make default
 
-gcc -g -o corderda.buildrooms corderda.buildrooms.c
-gcc -g -o corderda.adventure corderda.adventure.c
+valgrind --leak-check=full --track-origins=yes ./corderda.buildrooms
+valgrind --leak-check=full --track-origins=yes ./corderda.adventure
 
-gdb ./corderda.buildrooms
-gdb ./corderda.adventure
-
-./cleanup
