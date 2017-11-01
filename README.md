@@ -1,7 +1,7 @@
-Adventure
+# Adventure
+	By Ava Cordero
 
 	A text adventure game in C inspired by the original game Colossal Cave Adventure
-	By Ava Cordero
 
 Overview
 
