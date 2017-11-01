@@ -4,6 +4,8 @@ make clean
 
 now=$(date)
 
+git status
+
 read -p "Enter Commit Message > " msg
 
 msg="Commit on $now: $msg"
