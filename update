@@ -12,6 +12,6 @@ msg="Commit on $now: $msg"
 
 git add .
 git commit -m "$msg"
-git push --force
+git push
 
 echo $msg
