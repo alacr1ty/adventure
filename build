@@ -3,8 +3,8 @@
 make default
 echo
 
-./corderda.buildrooms
-./corderda.adventure
+./buildrooms
+./adventure
 echo -e "\n\n"
 
 # comment next line to leave artifact files

@@ -2,6 +2,6 @@
 
 make default
 
-valgrind --leak-check=full --track-origins=yes ./corderda.buildrooms
-valgrind --leak-check=full --track-origins=yes ./corderda.adventure
+valgrind --leak-check=full --track-origins=yes ./buildrooms
+valgrind --leak-check=full --track-origins=yes ./adventure
 

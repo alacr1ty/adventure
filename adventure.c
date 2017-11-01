@@ -27,7 +27,6 @@
 // Set NUM_ROOMS and MAX_ROOM to choose the number of room files and connections per room in the adventure
 #define NUM_ROOMS 7
 #define MAX_ROOMS (NUM_ROOMS-1)
-#define ONID "corderda"
 
 // Room Struct
 	// These are generated to output to a formatted room file
@@ -56,7 +55,7 @@ char* GetLatestAdvFolderName() {
 	folderName = malloc((sizeof(char) * 32));
 	char* folderNameBase;
 	folderNameBase = malloc((sizeof(char) * 32));
-	sprintf(folderNameBase, "%s.rooms.", ONID);
+	sprintf(folderNameBase, "rooms.");
 
 	DIR *dir;
 	struct stat stbuf;
@@ -67,8 +66,10 @@ char* GetLatestAdvFolderName() {
 	if ((dir = opendir ("./")) != NULL) {
 		/* while there are files and directories within directory to check*/
 		while ((ent = readdir (dir)) != NULL) {
-			// if the filename contains "<ONID>.rooms."
-			if(strstr(ent->d_name,folderNameBase)){
+			// if the filename contains "rooms." but is not one of the following:
+				// buildrooms.gcda buildrooms.gcno buildrooms.dSYM
+			if(strstr(ent->d_name,folderNameBase) && strcmp(ent->d_name,"buildrooms.gcda")!=0 &&
+				strcmp(ent->d_name,"buildrooms.gcno")!=0 && strcmp(ent->d_name,"buildrooms.dSYM")!=0){
 				stat(ent->d_name,&stbuf);
 				if (stbuf.st_mtime > newest){
 					newest = stbuf.st_mtime;

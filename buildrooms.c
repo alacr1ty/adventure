@@ -36,7 +36,6 @@
 // Set NUM_ROOMS to choose the number of room files in the adventure
 #define NUM_ROOMS 7
 #define MAX_ROOMS (NUM_ROOMS-1)
-#define ONID "corderda"
 
 // Room Struct
 	// These are generated to output to a formatted room file
@@ -126,7 +125,7 @@ void AddRandomRoom (struct Adv* adv, char options[10][32], int optionsLen) {
 		
 		// removes the room from the options array
 		thisRoom->numOutConnects = 0;
-		for ( c = position ; c < optionsLen-1 ; c++ )
+		for (c = position ; c < optionsLen-1 ; c++)
         	strcpy(options[c],options[c+1]); 
 
 		// increments numAdvRooms by 1
@@ -248,7 +247,7 @@ void BuildFolder () {
 
 	// make a directory with the name "<onid>.rooms.<pid>/"
 	char folderName[32];
-	sprintf(folderName, "%s.rooms.%d", ONID, getpid());
+	sprintf(folderName, "rooms.%d", getpid());
     mkdir(folderName, 0755);
 	return;
 
@@ -262,7 +261,7 @@ void BuildAdvFolder (struct Adv adv) {
 	BuildFolder();
 
 	char fileNameBase[32];
-	sprintf(fileNameBase, "%s.rooms.%d/", ONID, getpid());
+	sprintf(fileNameBase, "rooms.%d/", getpid());
 	char fileName[32];
 	FILE *fp;
 
@@ -299,20 +298,25 @@ int main (int argc, char const *argv[]) {
 	// Generate 7 different room files, one room per file, in a directory called
 	// Prints out all the formatted room objects to the room files
 
-	// seed randomization pool
-	srand(time(NULL)); 
 
-	// build the room array ("adventure") object
-		// an array of 7/10 names, with zero connections
-		// declare variables for the program
-	struct Adv adv;
-	adv.numAdvRooms = 0;
+	// an array of NUM_ROOMS names chosen from this array
+	// change strings and/or first index quantifier (i.e. options[<x>][32]) of the
+		// array to set the rooms that the game will use to generate a random adventure
 	char options[10][32] = {
 		"Home", "Dragon Lair", "Poppy Field",
 		"Ghost Town", "Brooklyn", "Dark Dungeon",
 		"Monster's Hut", "House of Mirrors", "Very Lost",
 		"Happy Place"
 	};
+
+
+	// seed randomization pool
+	srand(time(NULL)); 
+
+	// build the room array ("adventure") object
+		// declare variables for the program
+	struct Adv adv;
+	adv.numAdvRooms = 0;
 	int optionsLen = sizeof(options) / sizeof(options[0]);
 
 	// Add all rooms to the adventure

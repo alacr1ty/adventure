@@ -3,7 +3,10 @@
 make clean
 
 now=$(date)
-msg="Automated commit executed on $now"
+
+read -p "Enter Commit Message > " msg
+
+msg="Commit on $now: $msg"
 
 git add .
 git commit -m "$msg"
